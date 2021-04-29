@@ -3,7 +3,10 @@ package ReusableLibrary;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.*;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
@@ -11,6 +14,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.io.File;
 
 public class Reusable_Actions_PageObject {
@@ -25,6 +31,37 @@ public class Reusable_Actions_PageObject {
 
         return driver;
     } //end of navigate method
+
+    public static void uploadFile(String fileLocation, ExtentTest logger) {
+        try {
+            //Setting clipboard with file location
+            StringSelection stringSelection = new StringSelection(fileLocation);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+            //native key strokes for CTRL, V and ENTER keys
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_V);
+            robot.keyRelease(KeyEvent.VK_V);
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_ENTER);
+            robot.keyRelease(KeyEvent.VK_ENTER);
+            logger.log(LogStatus.PASS, "Successfully uploaded file!");
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            logger.log(LogStatus.FAIL, "Failed to upload file.");
+        }
+    }//end of uploadFile method
+
+    public static void verifyTitle(WebDriver driver, String userValue, ExtentTest logger){
+        String actualTitle = driver.getTitle();
+        if (actualTitle.equals(userValue)) {
+            //System.out.println("Actual title is: " + actualTitle);
+            logger.log(LogStatus.PASS, "Successfully verified that title matches expected: " + actualTitle);
+        } else {
+            //System.out.println("Failed! Actual title is: " + actualTitle);
+            logger.log(LogStatus.FAIL, "Failed! Title did not match expected. Actual title is: " + actualTitle);
+        }
+    }
 
 
     public static void sendKeysMethod(WebDriver driver, WebElement xpathLocator, String userValue, ExtentTest logger, String elementName){
@@ -85,7 +122,7 @@ public class Reusable_Actions_PageObject {
             wait.until(ExpectedConditions.visibilityOf(xpathLocator)).click();
             logger.log(LogStatus.PASS, "Successfully closed pop-up.");
         } catch (Exception e) {
-            logger.log(LogStatus.PASS, "Pop-up not available on this iteration. Proceeding to next step.");
+            logger.log(LogStatus.INFO, "Pop-up not available on this iteration. Proceeding to next step.");
         }
 
     }
@@ -130,7 +167,7 @@ public class Reusable_Actions_PageObject {
         try {
             WebElement element = wait.until(ExpectedConditions.visibilityOfAllElements(xpath)).get(index);
             result = element.getText();
-            logger.log(LogStatus.PASS,"Successfully captured a text on " + elementName);
+            logger.log(LogStatus.PASS,"Successfully captured a text on " + elementName + ". Result is: " + result);
         } catch (Exception e) {
             logger.log(LogStatus.FAIL,"Unable to select a value from " + elementName + " " + e);
             getScreenShot(driver, elementName, logger);
