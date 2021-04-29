@@ -25,6 +25,16 @@ public class Reusable_Actions {
 
         return driver;
     } //end of navigate method
+    public static void verifyTitle(WebDriver driver, String userValue, ExtentTest logger){
+        String actualTitle = driver.getTitle();
+        if (actualTitle.equals(userValue)) {
+            //System.out.println("Actual title is: " + actualTitle);
+            logger.log(LogStatus.PASS, "Successfully verified that title matches expected: " + actualTitle);
+        } else {
+            //System.out.println("Failed! Actual title is: " + actualTitle);
+            logger.log(LogStatus.FAIL, "Failed! Title did not match expected. Actual title is: " + actualTitle);
+        }
+    }
 
 
     public static void sendKeysMethod(WebDriver driver, String xpathLocator, String userValue, ExtentTest logger, String elementName){
